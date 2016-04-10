@@ -25,7 +25,7 @@ What is happening here is I am setting a variable (which is now accessible in Py
 ```
 pl> (define a 1)
 R: 1
-pl> (if (= a 1) (print 'Yes') (print 'No'))
+pl> (if (= a 1) (print "Yes") (print "No"))
 Yes
 NR~
 ```

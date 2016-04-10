@@ -38,38 +38,52 @@ def lex(characters):
     current_token = ""
     pos = 0
     while pos < len(characters): # returns immediately if there are 0 tokens
+        # By default, just add the current character to current_token
+        # Finding any other single-char token, like whitespace or a (,
+        #   commits the contents of current_token to a token and 
+        #   begins anew.
+        # This is most of the state in the lexer, along with position.
+
+        # Whitespace - discard, but commit current_token
         if characters[pos] in whitespace:
             # Discard all whitespace
             if len(current_token) > 0:
                 tokens.append(current_token)
                 current_token = ""
+
+        # Open paren token - commit current_token and commit a (
         elif characters[pos] == "(":
             # Open paren
             if len(current_token) > 0:
                 tokens.append(current_token)
                 current_token = ""
             tokens.append("(")
+
+        # Close paren token - commit current_token and commit a )
         elif characters[pos] == ")":
             # Close paren
             if len(current_token) > 0:
                 tokens.append(current_token)
                 current_token = ""
             tokens.append(")")
-        elif characters[pos] == "'":
+
+        # Strings: doubles quotes make string literals
+        elif characters[pos] == '"':
+            # Commit current_token
             if len(current_token) > 0:
                 tokens.append(current_token)
                 current_token = ""
            
+            # Do a string literal
             initial_pos = pos
-            # Single quote strings
-            closing_pos = characters.find("'", pos+1) + 1  # +1 here so that the token gets the quote
+            closing_pos = characters.find('"', pos+1) + 1  # +1 here so that the token gets the quote
             if closing_pos > pos:
                 # A complete string was found. It is a single token.
                 tokens.append(characters[pos:closing_pos])
                 pos = closing_pos - 1
             else:
                 # No complete string was found.
-                raise SyntaxError("Quote mismatch in single-quoted string.")
+                raise SyntaxError("Quote mismatch in string literal.")
         else:
             # Something else
             current_token += characters[pos]
@@ -115,7 +129,7 @@ def atom(token):
         try:
             return float(token)
         except ValueError:
-            # Python strs are Lisp symbols.
+            # Python strs are Lisp symbols, unless they have " in them, which is handled AFTER this.
             return Symbol(token)
 
 def eval(x, env = global_env):
@@ -123,7 +137,7 @@ def eval(x, env = global_env):
     Evaluate an expression x in an env
     """
     if isinstance(x, Symbol):
-        if x[0] == "'":
+        if x[0] == '"':
             # It's a string literal
             # Cut off the quotes and return it as such
             return x[1:-1]
@@ -217,7 +231,7 @@ class LispCmd(Cmd):
     """
     The command line for our Lisp, subclassing cmd.Cmd gives us edit features
     """
-    intro = "Welcome to PyParens, a Python Lispish"
+    intro = "Welcome to PyParens, a Python Lisp-ish"
     prompt = "pl> "
     file = None
 
