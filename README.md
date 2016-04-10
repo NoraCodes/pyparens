@@ -1,4 +1,4 @@
-# PyLisp
+# PyParens
 A Lisp written in Python. It is designed to have access to variables created in the Python script from which it is run.
 
 It currently has a major problem, namely how to extract things with the dot syntax, which is kind of a big deal in Python.
