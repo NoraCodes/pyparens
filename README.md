@@ -1,5 +1,5 @@
 # PyParens
-A Lisp written in Python. It is designed to have access to variables created in the Python script from which it is run.
+A Lisp written in Python. It is designed to have access to variables created in the Python script from which it is run. While the interpreter does have its own symbol table (so defining a name `var` will not overwrite the variable `var` in the Python script), if a symbol isn't found in the table, it will be looked for in the global context of the Python script from which the interpreter was called. This is mostly useful for creating functions in Python and then calling them in PyParens.
 
 It currently has a major problem, namely how to extract things with the dot syntax, which is kind of a big deal in Python.
 
@@ -30,4 +30,5 @@ Yes
 NR~
 ```
 Here, I'm using an if statement. It is a special form. I plan to implement it as a Python function and put it in the symbol table eventually.
+
 
