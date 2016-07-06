@@ -5,9 +5,9 @@
 from collections import namedtuple
 from cmd import Cmd
 from string import whitespace
-import math # For the standard environment
+import math  # For the standard environment
 import operator as op
-import importlib # To allow importing
+import importlib  # To allow importing
 
 Expr = namedtuple("Expr", ["fn", "args"])
 
@@ -16,6 +16,7 @@ List = list
 Number = (int, float)
 Env = dict
 
+
 def standard_env():
     """
     An environment with some useful stuff
@@ -23,24 +24,25 @@ def standard_env():
     env = Env()
     env.update(vars(math))
     env.update({
-        '+':op.add, '-':op.sub, '*':op.mul, '/':op.truediv,
-        '%':op.mod, '^':op.pow, 
-        '=':op.eq, 'eq':op.eq,
-        'print':print
+        '+': op.add, '-': op.sub, '*': op.mul, '/': op.truediv,
+        '%': op.mod, '^': op.pow,
+        '=': op.eq, 'eq': op.eq,
+        'print': print
         })
     return env
 
 global_env = standard_env()
+
 
 def lex(characters):
     "Convert a string of characters into a list of tokens."
     tokens = []
     current_token = ""
     pos = 0
-    while pos < len(characters): # returns immediately if there are 0 tokens
+    while pos < len(characters):  # returns immediately if there are 0 tokens
         # By default, just add the current character to current_token
         # Finding any other single-char token, like whitespace or a (,
-        #   commits the contents of current_token to a token and 
+        #   commits the contents of current_token to a token and
         #   begins anew.
         # This is most of the state in the lexer, along with position.
 
@@ -73,10 +75,11 @@ def lex(characters):
             if len(current_token) > 0:
                 tokens.append(current_token)
                 current_token = ""
-           
+
             # Do a string literal
             initial_pos = pos
-            closing_pos = characters.find('"', pos+1) + 1  # +1 here so that the token gets the quote
+            # +1 here so that the token gets the quote
+            closing_pos = characters.find('"', pos+1) + 1
             if closing_pos > pos:
                 # A complete string was found. It is a single token.
                 tokens.append(characters[pos:closing_pos])
@@ -93,7 +96,6 @@ def lex(characters):
     return tokens
 
 
-
 def parse(tokens):
     """
     Take lexed tokens and turn them into lists of numbers and symbols
@@ -101,9 +103,9 @@ def parse(tokens):
     if len(tokens) == 0:
         raise SyntaxError("Unexpected EOF while parsing.")
     token = tokens.pop(0)
-    # We need to have a paren to start a list, otherwise we'll just eval one token
+    # We need to have a paren to start a list, otherwise we'll just eval one
     # TODO
-    if token == '(':  
+    if token == '(':
         L = []
         try:
             while tokens[0] != ')':
@@ -119,6 +121,7 @@ def parse(tokens):
     else:
         return atom(token)
 
+
 def atom(token):
     """
     Numbers -> numbers, everything else -> symbols.
@@ -129,10 +132,12 @@ def atom(token):
         try:
             return float(token)
         except ValueError:
-            # Python strs are Lisp symbols, unless they have " in them, which is handled AFTER this.
+            # Python strs are Lisp symbols, unless they have " in them,
+            #   which is handled AFTER this.
             return Symbol(token)
 
-def eval(x, env = global_env):
+
+def eval(x, env=global_env):
     """
     Evaluate an expression x in an env
     """
@@ -141,9 +146,9 @@ def eval(x, env = global_env):
             # It's a string literal
             # Cut off the quotes and return it as such
             return x[1:-1]
-        
+
         # Variable lookup
-        try: 
+        try:
             val = env[x]
         except KeyError:
             try:
@@ -167,18 +172,22 @@ def eval(x, env = global_env):
             (_, test, conseq, alt) = x
         except ValueError:
             try:
-                #Without an alt clause, defaults to False
+                # Without an alt clause, defaults to False
                 (_, test, conseq) = x
                 alt = False
             except ValueError:
-                raise SyntaxError("if requires two or three arguments (test, consqeuence, and optional alternative)")
+                raise SyntaxError(
+                    "if requires two or three arguments" +
+                    "(test, consqeuence, and optional alternative)")
         exp = (conseq if eval(test, env) else alt)
         return eval(exp, env)
     elif x[0] == 'define':
         try:
             (_, var, exp) = x
         except ValueError:
-            raise SyntaxError("define requires exactly two arguments (the name of the variable and its value)")
+            raise SyntaxError(
+                "define requires exactly two arguments " +
+                "(the name of the variable and its value)")
         val = eval(exp, env)
         env[var] = val
         # This is not standard Lisp, but I like it
@@ -187,7 +196,9 @@ def eval(x, env = global_env):
         try:
             (_, exp) = x
         except ValueError as e:
-            raise SyntaxError("import requires exactly 1 argument (the name of the module). {}".format(e))
+            raise SyntaxError(
+                "import requires exactly 1 argument " +
+                "(the name of the module). {}".format(e))
         val = eval(exp, env)
         return importlib.import_module(val)
     else:
@@ -198,15 +209,17 @@ def eval(x, env = global_env):
         try:
             return proc(*args)
         except TypeError as e:
-            if hasattr(proc, '__call__'): 
+            if hasattr(proc, '__call__'):
                 # Callable, but wrong number of args or something
                 raise NameError(e)
-            raise NameError("Tried to call a non-callable Python object {} (its type is {})"
-                    .format(x[0], type(proc)))
+            raise NameError("Tried to call a non-callable Python object {} " +
+                            "(its type is {})".format(x[0], type(proc)))
+
 
 def plexec(line):
-    """ 
-    Brings together the lexer, parser, and evaluator, and does some error handling
+    """
+    Brings together the lexer, parser, and evaluator,
+    and does some error handling
     """
     return_value = False
     try:
@@ -226,7 +239,6 @@ def plexec(line):
         print("NR~")
 
 
-
 class LispCmd(Cmd):
     """
     The command line for our Lisp, subclassing cmd.Cmd gives us edit features
@@ -235,7 +247,8 @@ class LispCmd(Cmd):
     prompt = "pl> "
     file = None
 
-    # We actually don't mostly use commands, so everything is handled by default()
+    # We actually don't mostly use commands, so everything is
+    #   handled by default()
     def default(self, line):
         plexec(line)
 
@@ -284,9 +297,9 @@ class LispCmd(Cmd):
         """
         print(parse(lex(arg)))
 
+
 def main():
     commandLine = LispCmd()
     commandLine.cmdloop()
-       
+
 main()
-              
