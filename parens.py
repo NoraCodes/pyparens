@@ -241,7 +241,7 @@ def plexec(line):
 
 class LispCmd(Cmd):
     """
-    The command line for our Lisp, subclassing cmd.Cmd gives us edit features
+    The command line for PyParens
     """
     intro = "Welcome to PyParens, a Python Lisp-ish"
     prompt = "pl> "
@@ -298,8 +298,9 @@ class LispCmd(Cmd):
         print(parse(lex(arg)))
 
 
-def main():
+def repl():
     commandLine = LispCmd()
     commandLine.cmdloop()
 
-main()
+if __name__ == "__main__":
+    main()
