@@ -9,6 +9,8 @@ import math  # For the standard environment
 import operator as op
 import importlib  # To allow importing
 
+import plistd
+
 Expr = namedtuple("Expr", ["fn", "args"])
 
 Symbol = str
@@ -27,7 +29,8 @@ def standard_env():
         '+': op.add, '-': op.sub, '*': op.mul, '/': op.truediv,
         '%': op.mod, '^': op.pow,
         '=': op.eq, 'eq': op.eq,
-        'print': print
+        'print': print,
+        'list': plistd.makelist
         })
     return env
 
