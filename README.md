@@ -34,5 +34,7 @@ Here, I'm using an if statement. It is a special form. I plan to implement it as
 Other special forms include `import` and `.`. They go well together:
 
 ```
-(. (import math) pi)
+pl> (. (import math) pi)
+R: 3.141592653589793
+
 ```
