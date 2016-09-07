@@ -31,4 +31,8 @@ NR~
 ```
 Here, I'm using an if statement. It is a special form. I plan to implement it as a Python function and put it in the symbol table eventually.
 
+Other special forms include `import` and `.`. They go well together:
 
+```
+(. (import math) pi)
+```

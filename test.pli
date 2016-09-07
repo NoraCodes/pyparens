@@ -3,3 +3,10 @@
     (= 5 3) 
     (= "test" "test")
 )
+
+(print
+    (. 
+        (import math)
+        pi
+    )
+)

@@ -6,6 +6,19 @@ import importlib
 from .common import *
 from .env import global_env
 
+
+def get_var(x, env):
+    " Look up a variable in the env. If it's not there, look it up globally. "
+    try:
+        val = env[x]
+    except KeyError:
+        try:
+            val = globals()[x]
+        except:
+            raise NameError("No variable named {}".format(x))
+    return val
+
+
 def eval(x, env=global_env):
     """
     Evaluate an expression x in an env
@@ -16,15 +29,9 @@ def eval(x, env=global_env):
             # Cut off the quotes and return it as such
             return x[1:-1]
 
-        # Variable lookup
-        try:
-            val = env[x]
-        except KeyError:
-            try:
-                val = globals()[x]
-            except:
-                raise NameError("No variable named {}".format(x))
-        return val
+        # OK, it's a variable.
+        return get_var(x, env)
+
     elif not isinstance(x, List):
         # const. literal
         return x
@@ -35,6 +42,15 @@ def eval(x, env=global_env):
         except ValueError:
             exp = False
         return exp
+    elif x[0] == '.':
+        # Dot notation extraction
+        # e.g. (. obj attr) will give obj.attr
+        if len(x) == 3:
+            (_, parent, child) = x
+            return getattr(eval(parent, env), child)
+        else:
+            raise SyntaxError("Dot extraction requires "+
+                    "exactly two arguments.")
     elif x[0] == 'if':
         try:
             # With an alt clause
@@ -68,8 +84,7 @@ def eval(x, env=global_env):
             raise SyntaxError(
                 "import requires exactly 1 argument " +
                 "(the name of the module). {}".format(e))
-        val = eval(exp, env)
-        return importlib.import_module(val)
+        return importlib.import_module(exp)
     else:
         # This is the default case:
         # (f arg1 arg2 .. argn)
