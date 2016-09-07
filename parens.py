@@ -303,4 +303,4 @@ def repl():
     commandLine.cmdloop()
 
 if __name__ == "__main__":
-    main()
+    repl()
