@@ -1,12 +1,10 @@
 # PyParens
 A Lisp written in Python. It is designed to have access to variables created in the Python script from which it is run. While the interpreter does have its own symbol table (so defining a name `var` will not overwrite the variable `var` in the Python script), if a symbol isn't found in the table, it will be looked for in the global context of the Python script from which the interpreter was called. This is mostly useful for creating functions in Python and then calling them in PyParens.
 
-It currently has a major problem, namely how to extract things with the dot syntax, which is kind of a big deal in Python.
-
 It also has a lot of minor problems, like:
 * Comments are not yet implemented
 * The lexical analyzer is very slow
-* Only single quoted strings are allowed
+* Only double quoted strings are allowed
 * It is a toy and is not tested
 * I'm not done building the default environment
 
