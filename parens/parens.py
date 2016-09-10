@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 # A Python Lispish called Parens
-import importlib  # To allow importing
-
-from .common import *
 from .lex import lex
 from .parse import parse
 from .eval import eval
@@ -31,5 +28,4 @@ def plexec(line):
     else:
         print("NR~")
 
-
-
+    return return_value
