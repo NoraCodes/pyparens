@@ -35,18 +35,28 @@ def eval(x, env=global_env):
     """
     if isinstance(x, Symbol):
         if x[0] == '"':
-            # It's a string literal
+            # x is a string literal
             # Cut off the quotes and return it as such
             return x[1:-1]
 
         # OK, it's a variable.
         return get_var(x, env)
 
+    # Maybe x isn't a list but some kind of literal
     elif not isinstance(x, List):
         # const. literal
         return x
+
+    # OK, x is a list, but is it empty?
+    elif len(x) == 0:
+        return []
+
+    # It isn't empty... maybe it's a special form.
+    # Dot extraction special form
     elif x[0] == '.':
         return dot_extraction(x, env)
+
+    # Conditional special form
     elif x[0] == 'if':
         try:
             # With an alt clause
@@ -62,6 +72,8 @@ def eval(x, env=global_env):
                     "(test, consqeuence, and optional alternative)")
         exp = (conseq if eval(test, env) else alt)
         return eval(exp, env)
+
+    # Variable definition special form
     elif x[0] == 'define':
         try:
             (_, var, exp) = x
@@ -73,6 +85,8 @@ def eval(x, env=global_env):
         env[var] = val
         # This is not standard Lisp, but I like it
         return val
+
+    # Import special form
     elif x[0] == 'import':
         try:
             (_, exp) = x
@@ -81,15 +95,34 @@ def eval(x, env=global_env):
                 "import requires exactly 1 argument " +
                 "(the name of the module). {}".format(e))
         return importlib.import_module(exp)
+
     else:
         # This is the default case:
         # (f arg1 arg2 .. argn)
+        # or perhaps
+        # (item1 item2 ... itemn)
+
+        # Evaluate the first item, to see if it gives us back a callable
         proc = eval(x[0], env)
+
+        # Handle the case of (item1 item2 ... itemn)
+        if not callable(proc):
+            # If input is of the form (item), put item in a list and we're done
+            if len(x) == 1:
+                return [proc]
+            else:
+                # If there are more elements, eval them and put them in a list
+                L = [proc]
+                for item in x[1:]:
+                    L.append(eval(item))
+                return L
+
+        # OK, input is of the form (f arg1 arg2 ... argn)
         args = [eval(arg, env) for arg in x[1:]]
         try:
             return proc(*args)
         except TypeError as e:
-            if hasattr(proc, '__call__'):
+            if callable(proc):
                 # Callable, but wrong number of args or something
                 raise NameError(e)
             raise NameError("Tried to call a non-callable Python object {} " +

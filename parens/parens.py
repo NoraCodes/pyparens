@@ -18,6 +18,8 @@ def plexec(line):
         print(e)
     except NameError as e:
         print(e)
+    except AttributeError as e:
+        print(e)
     except KeyboardInterrupt:
         print("Aborted with keyboard.")
     except SystemExit:
