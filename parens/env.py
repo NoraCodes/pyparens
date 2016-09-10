@@ -1,18 +1,19 @@
 # env.py
 # Python Lisp ENVironment
 
-from .common import *
+from .common import Env
+
 
 def standard_env():
     """
     An environment with some useful stuff
     """
     env = Env()
-    
+
     # Add mathematical symbols
     import math
     env.update(vars(math))
-    
+
     # Add fundamental operations
     import operator as op
     env.update({
@@ -31,7 +32,7 @@ def standard_env():
     env.update(vars(plistd))
     # Alias a few of them to make them easier to use
     env.update({
-        'list': plistd.makelist
+        'list': plistd.makelist,
     })
 
     return env

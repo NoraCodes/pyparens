@@ -2,7 +2,7 @@
 # pli.py
 # A command interpreter frontend for PyParens, the Python Lisp
 
-from parens import plexec
+from parens import plexec, parse, lex
 from cmd import Cmd
 
 class LispCmd(Cmd):

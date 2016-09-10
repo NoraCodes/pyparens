@@ -3,7 +3,7 @@
 
 import importlib
 
-from .common import *
+from .common import Symbol, List
 from .env import global_env
 
 
@@ -17,6 +17,16 @@ def get_var(x, env):
         except:
             raise NameError("No variable named {}".format(x))
     return val
+
+
+def dot_extraction(x, env):
+    'Dot notation extraction: e.g. (. obj attr) will give obj.attr'
+    if len(x) == 3:
+        (_, parent, child) = x
+        return getattr(eval(parent, env), child)
+    else:
+        raise SyntaxError("Dot extraction requires " +
+                          "exactly two arguments.")
 
 
 def eval(x, env=global_env):
@@ -35,22 +45,8 @@ def eval(x, env=global_env):
     elif not isinstance(x, List):
         # const. literal
         return x
-    elif x[0] == 'quote':
-        # (quote exp)
-        try:
-            (_, exp) = x
-        except ValueError:
-            exp = False
-        return exp
     elif x[0] == '.':
-        # Dot notation extraction
-        # e.g. (. obj attr) will give obj.attr
-        if len(x) == 3:
-            (_, parent, child) = x
-            return getattr(eval(parent, env), child)
-        else:
-            raise SyntaxError("Dot extraction requires "+
-                    "exactly two arguments.")
+        return dot_extraction(x, env)
     elif x[0] == 'if':
         try:
             # With an alt clause
@@ -98,4 +94,3 @@ def eval(x, env=global_env):
                 raise NameError(e)
             raise NameError("Tried to call a non-callable Python object {} " +
                             "(its type is {})".format(x[0], type(proc)))
-
