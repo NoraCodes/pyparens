@@ -14,3 +14,7 @@ def quote(*args):
 def cond(test, then, else_=False, *, env):
     from .eval import eval
     return eval(then if test else else_, env)
+
+def assign(name, val, *, env):
+    env[name] = val
+    return val

@@ -28,9 +28,11 @@ def lex(characters):
             if len(current_token) > 0:
                 tokens.append(current_token)
                 current_token = ""
-            pos += 1
-            assert characters[pos] == '('
-            tokens.append("'(")
+            if characters[pos + 1] == '(':
+                pos += 1
+                tokens.append("'(")
+            else:
+                current_token += "'"
 
 
         # Open paren token - commit current_token and commit a (

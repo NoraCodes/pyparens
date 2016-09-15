@@ -24,6 +24,9 @@ def preparse(tokens):
         elif token == '\'(':
             count_open += 1
             current_list.append('\'(')
+        elif token.startswith("'"):
+            current_list.append('"{}"'.format(token[1:]))
+            continue
         elif token == ')':
             if count_open == 0:
                 # Too many closing parens
