@@ -29,6 +29,18 @@ def dot_extraction(x, env):
                           "exactly two arguments.")
 
 
+def wants_env(f):
+    from inspect import signature
+    try:
+        sig = signature(f)
+    except ValueError:
+        return False
+    for param in sig.parameters.values():
+        if (param.kind == param.KEYWORD_ONLY and
+            param.name == 'env'):
+            return True
+    return False
+
 def eval(x, env=global_env):
     """
     Evaluate an expression x in an env
@@ -120,7 +132,10 @@ def eval(x, env=global_env):
         # OK, input is of the form (f arg1 arg2 ... argn)
         args = [eval(arg, env) for arg in x[1:]]
         try:
-            return proc(*args)
+            if wants_env(proc):
+                return proc(*args, env=env)
+            else:
+                return proc(*args)
         except TypeError as e:
             if callable(proc):
                 # Callable, but wrong number of args or something

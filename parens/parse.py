@@ -21,7 +21,12 @@ def preparse(tokens):
         if token == '(':
             count_open += 1
             current_list.append('(')
-
+        elif token == '\'(':
+            count_open += 1
+            current_list.append('\'(')
+        elif token.startswith("'"):
+            current_list.append('"{}"'.format(token[1:]))
+            continue
         elif token == ')':
             if count_open == 0:
                 # Too many closing parens
@@ -55,8 +60,10 @@ def parse_single(tokens):
     token = tokens.pop(0)
     # We need to have a paren to start a list, otherwise we'll just eval one
     # TODO
-    if token == '(':
+    if token in ('\'(', '('):
         L = []
+        if token == '\'(':
+            L.append('quote')
         try:
             while tokens[0] != ')':
                 # Until we get to the end of this paren enclosure, recurse
