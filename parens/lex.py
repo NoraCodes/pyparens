@@ -22,6 +22,17 @@ def lex(characters):
                 tokens.append(current_token)
                 current_token = ""
 
+        # Quote token - commit current_token and commit a '(
+        elif characters[pos] == "'":
+            # Quote
+            if len(current_token) > 0:
+                tokens.append(current_token)
+                current_token = ""
+            pos += 1
+            assert characters[pos] == '('
+            tokens.append("'(")
+
+
         # Open paren token - commit current_token and commit a (
         elif characters[pos] == "(":
             # Open paren
